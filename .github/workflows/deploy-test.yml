@@ -1,0 +1,73 @@
+# Déploiement de test sur GitHub Pages avec un faux corpus de 600 livres.
+#
+# Les faux livres sont générés ici (outils/faux-corpus/faux_corpus.py) à partir de
+# textes Wikisource des XVIe-XVIIe s. (outils/faux-corpus/sources), puis ajoutés
+# aux vraies données de data/ : ils ne sont pas versionnés (~224 Mo de XML).
+# Leurs images pointent vers les 4 vrais manifestes (images sans rapport avec le texte).
+
+name: Déploiement test (faux corpus)
+
+on:
+  workflow_dispatch:
+    inputs:
+      nombre:
+        description: Nombre de faux livres
+        default: '600'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  SITE_URL: https://godicked.github.io/espiegle-test
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Générer le faux corpus
+        run: |
+          python3 outils/faux-corpus/faux_corpus.py \
+            --sources outils/faux-corpus/sources --data data --sortie data_test \
+            --n "${{ inputs.nombre || '600' }}"
+
+      - name: Build Astro
+        run: npm run build
+        env:
+          DATA_PATH: ./data_test
+          # Pas de copie des XML dans le site (~230 Mo) : le bouton « XML » pointe
+          # vers le dépôt, où seuls les vrais XML existent (404 pour les faux livres).
+          XML_DEPOT_URL: https://raw.githubusercontent.com/godicked/espiegle-test/main/data/transcriptions
+
+      - name: Taille du site
+        run: |
+          du -sh --apparent-size dist dist/livres dist/pagefind
+          echo "fichiers : $(find dist -type f | wc -l)"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

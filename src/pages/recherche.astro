@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro'
+import MoteurFacettes from '../components/MoteurFacettes.jsx'
+import { getLivres, getColonnesMeta, getEquivalences } from '../lib/parseData'
+import '../styles/recherche.css'
+
+// Seules les définitions de facettes sont embarquées : le catalogue est chargé
+// par l'île depuis /recherche-donnees.json, le plein texte via l'index Pagefind
+// (voir src/lib/indexRecherche.ts).
+const livres = getLivres()
+const colonnesMeta = getColonnesMeta(livres)
+const equivalences = getEquivalences()
+---
+<Base titre="Recherche" description="Moteur de recherche à facettes">
+  <div class="conteneur conteneur--large">
+    <div class="page-entete">
+      <h1 class="page-titre">
+        <span class="material-icons">manage_search</span>
+        Recherche
+      </h1>
+      <p class="page-description">
+        Filtrez la collection par critères ou recherchez dans les titres, les auteurs et les transcriptions.
+      </p>
+    </div>
+
+    <MoteurFacettes
+      colonnesMeta={colonnesMeta}
+      equivalences={equivalences}
+      client:load
+    />
+  </div>
+</Base>
+

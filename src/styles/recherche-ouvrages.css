@@ -1,0 +1,91 @@
+/* Barre de recherche d'ouvrages dans la navigation (RechercheOuvrages.astro). */
+
+.recherche-ouvrages {
+  position: relative;
+  flex: 1;
+  max-width: 480px;
+  margin: 0 24px;
+}
+
+.recherche-ouvrages-icone {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: var(--md-on-surface-medium);
+  pointer-events: none;
+}
+
+.recherche-ouvrages-champ {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px 0 38px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--md-surface);
+  color: var(--md-on-surface);
+  font-family: var(--font-corps);
+  font-size: 0.9rem;
+}
+
+.recherche-ouvrages-champ:focus {
+  outline: 2px solid var(--md-primary-light);
+  outline-offset: 1px;
+}
+
+.recherche-ouvrages-liste {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 60vh;
+  overflow-y: auto;
+  list-style: none;
+  background: var(--md-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--md-elevation-4);
+  padding: 4px 0;
+}
+
+.recherche-ouvrages-liste a {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 14px;
+  color: var(--md-on-surface);
+  text-decoration: none;
+}
+
+.recherche-ouvrages-liste a:hover,
+.recherche-ouvrages-liste a.actif {
+  background: var(--md-primary-tint);
+}
+
+.recherche-ouvrages-titre {
+  font-family: var(--font-texte);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.recherche-ouvrages-auteur {
+  font-size: 0.8rem;
+  color: var(--md-on-surface-medium);
+}
+
+.recherche-ouvrages-vide {
+  padding: 10px 14px;
+  font-size: 0.875rem;
+  color: var(--md-on-surface-medium);
+}
+
+@media (max-width: 640px) {
+  .recherche-ouvrages { margin: 0 12px; }
+  .recherche-ouvrages-champ { font-size: 16px; } /* évite le zoom iOS */
+}
+
+@media (max-width: 640px) {
+  .nav-contenu { padding: 0 12px; }
+  .nav-logo span:not(.material-icons) { display: none; }
+  .nav-lien { padding: 8px; }
+}

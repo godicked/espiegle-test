@@ -1,0 +1,86 @@
+/* Page des membres du projet. */
+
+.membres-entete {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.membres-titre {
+  font-family: var(--font-texte);
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--md-on-surface);
+}
+
+.membres-sous-titre {
+  color: var(--md-on-surface-medium);
+  font-size: 0.9rem;
+}
+
+.grille-membres {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr));
+  gap: 16px;
+}
+
+.carte-membre {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  align-items: flex-start;
+}
+
+/* Les cartes ne sont pas cliquables : pas d'élévation au survol. */
+.carte-membre:hover { box-shadow: var(--md-elevation-1); }
+
+/* Sources de ratios variés : recadrage carré, un peu au-dessus du centre pour garder les visages. */
+.carte-membre-avatar {
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 25%;
+  flex-shrink: 0;
+  background: var(--md-primary-tint);
+}
+
+.carte-membre-info { flex: 1; min-width: 0; }
+
+.carte-membre-nom {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--md-on-surface);
+  margin-bottom: 8px;
+}
+
+.carte-membre-description {
+  font-family: var(--font-texte);
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.carte-membre-liens {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-top: 12px;
+  font-size: 0.875rem;
+}
+
+.carte-membre-liens a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  overflow-wrap: anywhere;
+}
+
+.carte-membre-liens .material-icons { font-size: 16px; }
+
+@media (max-width: 520px) {
+  .carte-membre { flex-direction: column; align-items: center; }
+  .carte-membre-nom { text-align: center; }
+}

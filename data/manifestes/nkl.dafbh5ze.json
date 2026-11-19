@@ -1,0 +1,324 @@
+{
+  "@context": "http://iiif.io/api/presentation/3/context.json",
+  "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json",
+  "type": "Manifest",
+  "label": {
+    "fr": [
+      "1622_Anonyme_Cabinet-françois"
+    ]
+  },
+  "items": [
+    {
+      "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p1",
+      "type": "Canvas",
+      "label": {
+        "none": [
+          "1622_Anonyme_Le-Cabinet-francois_ed.1622_Thomas-Arnaud-d’Armosin_RW_page_001.jpg"
+        ]
+      },
+      "width": 1200,
+      "height": 1719,
+      "items": [
+        {
+          "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p1/annopage",
+          "type": "AnnotationPage",
+          "items": [
+            {
+              "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p1/anno",
+              "type": "Annotation",
+              "motivation": "painting",
+              "target": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p1",
+              "body": {
+                "id": "https://api.nakala.fr/iiif/10.34847/nkl.dafbh5ze/27dffb2f296c91b115735a3a7920ef21bc3e1c3e/full/max/0/default.jpg",
+                "type": "Image",
+                "format": "image/jpeg",
+                "width": 1200,
+                "height": 1719,
+                "service": [
+                  {
+                    "id": "https://api.nakala.fr/iiif/10.34847/nkl.dafbh5ze/27dffb2f296c91b115735a3a7920ef21bc3e1c3e",
+                    "type": "ImageService3",
+                    "profile": "level2"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p2",
+      "type": "Canvas",
+      "label": {
+        "none": [
+          "1622_Anonyme_Le-Cabinet-francois_ed.1622_Thomas-Arnaud-d’Armosin_RW_page_002.jpg"
+        ]
+      },
+      "width": 1356,
+      "height": 2030,
+      "items": [
+        {
+          "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p2/annopage",
+          "type": "AnnotationPage",
+          "items": [
+            {
+              "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p2/anno",
+              "type": "Annotation",
+              "motivation": "painting",
+              "target": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p2",
+              "body": {
+                "id": "https://api.nakala.fr/iiif/10.34847/nkl.dafbh5ze/b871e61b98bdc39a0fdc218544e548c3d43e40d6/full/max/0/default.jpg",
+                "type": "Image",
+                "format": "image/jpeg",
+                "width": 1356,
+                "height": 2030,
+                "service": [
+                  {
+                    "id": "https://api.nakala.fr/iiif/10.34847/nkl.dafbh5ze/b871e61b98bdc39a0fdc218544e548c3d43e40d6",
+                    "type": "ImageService3",
+                    "profile": "level2"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p3",
+      "type": "Canvas",
+      "label": {
+        "none": [
+          "1622_Anonyme_Le-Cabinet-francois_ed.1622_Thomas-Arnaud-d’Armosin_RW_page_003.jpg"
+        ]
+      },
+      "width": 1200,
+      "height": 1995,
+      "items": [
+        {
+          "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p3/annopage",
+          "type": "AnnotationPage",
+          "items": [
+            {
+              "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p3/anno",
+              "type": "Annotation",
+              "motivation": "painting",
+              "target": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p3",
+              "body": {
+                "id": "https://api.nakala.fr/iiif/10.34847/nkl.dafbh5ze/9aef6aa5ac3baa2b77b10ff7f07a96480e39f3c4/full/max/0/default.jpg",
+                "type": "Image",
+                "format": "image/jpeg",
+                "width": 1200,
+                "height": 1995,
+                "service": [
+                  {
+                    "id": "https://api.nakala.fr/iiif/10.34847/nkl.dafbh5ze/9aef6aa5ac3baa2b77b10ff7f07a96480e39f3c4",
+                    "type": "ImageService3",
+                    "profile": "level2"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p4",
+      "type": "Canvas",
+      "label": {
+        "none": [
+          "1622_Anonyme_Le-Cabinet-francois_ed.1622_Thomas-Arnaud-d’Armosin_RW_page_004.jpg"
+        ]
+      },
+      "width": 1356,
+      "height": 2013,
+      "items": [
+        {
+          "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p4/annopage",
+          "type": "AnnotationPage",
+          "items": [
+            {
+              "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p4/anno",
+              "type": "Annotation",
+              "motivation": "painting",
+              "target": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p4",
+              "body": {
+                "id": "https://api.nakala.fr/iiif/10.34847/nkl.dafbh5ze/5a5a6e3ab3ec3ee96a4a69fa1549d1537bbca397/full/max/0/default.jpg",
+                "type": "Image",
+                "format": "image/jpeg",
+                "width": 1356,
+                "height": 2013,
+                "service": [
+                  {
+                    "id": "https://api.nakala.fr/iiif/10.34847/nkl.dafbh5ze/5a5a6e3ab3ec3ee96a4a69fa1549d1537bbca397",
+                    "type": "ImageService3",
+                    "profile": "level2"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p5",
+      "type": "Canvas",
+      "label": {
+        "none": [
+          "1622_Anonyme_Le-Cabinet-francois_ed.1622_Thomas-Arnaud-d’Armosin_RW_page_005.jpg"
+        ]
+      },
+      "width": 1275,
+      "height": 2048,
+      "items": [
+        {
+          "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p5/annopage",
+          "type": "AnnotationPage",
+          "items": [
+            {
+              "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p5/anno",
+              "type": "Annotation",
+              "motivation": "painting",
+              "target": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p5",
+              "body": {
+                "id": "https://api.nakala.fr/iiif/10.34847/nkl.dafbh5ze/40c0d1b6209124b747c042b2350b5ac33e7552f1/full/max/0/default.jpg",
+                "type": "Image",
+                "format": "image/jpeg",
+                "width": 1275,
+                "height": 2048,
+                "service": [
+                  {
+                    "id": "https://api.nakala.fr/iiif/10.34847/nkl.dafbh5ze/40c0d1b6209124b747c042b2350b5ac33e7552f1",
+                    "type": "ImageService3",
+                    "profile": "level2"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p6",
+      "type": "Canvas",
+      "label": {
+        "none": [
+          "1622_Anonyme_Le-Cabinet-francois_ed.1622_Thomas-Arnaud-d’Armosin_RW_page_006.jpg"
+        ]
+      },
+      "width": 1161,
+      "height": 2019,
+      "items": [
+        {
+          "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p6/annopage",
+          "type": "AnnotationPage",
+          "items": [
+            {
+              "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p6/anno",
+              "type": "Annotation",
+              "motivation": "painting",
+              "target": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p6",
+              "body": {
+                "id": "https://api.nakala.fr/iiif/10.34847/nkl.dafbh5ze/0cbf2c127d965e6723495f447f88e0cd21688de0/full/max/0/default.jpg",
+                "type": "Image",
+                "format": "image/jpeg",
+                "width": 1161,
+                "height": 2019,
+                "service": [
+                  {
+                    "id": "https://api.nakala.fr/iiif/10.34847/nkl.dafbh5ze/0cbf2c127d965e6723495f447f88e0cd21688de0",
+                    "type": "ImageService3",
+                    "profile": "level2"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p7",
+      "type": "Canvas",
+      "label": {
+        "none": [
+          "1622_Anonyme_Le-Cabinet-francois_ed.1622_Thomas-Arnaud-d’Armosin_RW_page_007.jpg"
+        ]
+      },
+      "width": 1164,
+      "height": 2022,
+      "items": [
+        {
+          "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p7/annopage",
+          "type": "AnnotationPage",
+          "items": [
+            {
+              "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p7/anno",
+              "type": "Annotation",
+              "motivation": "painting",
+              "target": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p7",
+              "body": {
+                "id": "https://api.nakala.fr/iiif/10.34847/nkl.dafbh5ze/c0cd774bc61e1a8541eca566a63761c6249ebd00/full/max/0/default.jpg",
+                "type": "Image",
+                "format": "image/jpeg",
+                "width": 1164,
+                "height": 2022,
+                "service": [
+                  {
+                    "id": "https://api.nakala.fr/iiif/10.34847/nkl.dafbh5ze/c0cd774bc61e1a8541eca566a63761c6249ebd00",
+                    "type": "ImageService3",
+                    "profile": "level2"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p8",
+      "type": "Canvas",
+      "label": {
+        "none": [
+          "1622_Anonyme_Le-Cabinet-francois_ed.1622_Thomas-Arnaud-d’Armosin_RW_page_008.jpg"
+        ]
+      },
+      "width": 1203,
+      "height": 1977,
+      "items": [
+        {
+          "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p8/annopage",
+          "type": "AnnotationPage",
+          "items": [
+            {
+              "id": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p8/anno",
+              "type": "Annotation",
+              "motivation": "painting",
+              "target": "http://localhost:4321/manifestes/nkl.dafbh5ze.json/canvas/p8",
+              "body": {
+                "id": "https://api.nakala.fr/iiif/10.34847/nkl.dafbh5ze/5a29d18243d810e16f0a0b3740e0342b514a9ed1/full/max/0/default.jpg",
+                "type": "Image",
+                "format": "image/jpeg",
+                "width": 1203,
+                "height": 1977,
+                "service": [
+                  {
+                    "id": "https://api.nakala.fr/iiif/10.34847/nkl.dafbh5ze/5a29d18243d810e16f0a0b3740e0342b514a9ed1",
+                    "type": "ImageService3",
+                    "profile": "level2"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

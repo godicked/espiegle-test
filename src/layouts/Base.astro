@@ -1,0 +1,57 @@
+---
+// global.css doit être importé en premier pour que les CSS de pages
+// puissent surcharger ses règles (ordre de cascade).
+import '../styles/global.css'
+import { url } from '../lib/url'
+import RechercheOuvrages from '../components/RechercheOuvrages.astro'
+
+export interface Props {
+  titre?: string
+  description?: string
+}
+const { titre = 'ESPIÈGLE 15-17', description = '' } = Astro.props
+const siteNom = 'ESPIÈGLE 15-17'
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{titre ? `${titre} — ${siteNom}` : siteNom}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="nav-principale">
+      <div class="nav-contenu">
+        <a href={url("/")} class="nav-logo">
+          <span class="material-icons">auto_stories</span>
+          <span>{siteNom}</span>
+        </a>
+        <RechercheOuvrages />
+        <div class="nav-liens">
+          <a href={url('/')} class="nav-lien">Accueil</a>
+          <a href={url('/recherche')} class="nav-lien">Recherche</a>
+          <a href={url('/membres')} class="nav-lien">Membres</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Contenu principal -->
+    <main>
+      <slot />
+    </main>
+
+    <!-- Pied de page -->
+    <footer class="pied-de-page">
+      <div class="pied-contenu">
+        <p>{titre}</p>
+      </div>
+    </footer>
+  </body>
+</html>
+

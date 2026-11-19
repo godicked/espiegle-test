@@ -1,0 +1,76 @@
+---
+import Base from '../layouts/Base.astro'
+import CarteLivre from '../components/CarteLivre.astro'
+import { getLivres } from '../lib/parseData'
+import { url } from '../lib/url'
+import '../styles/accueil.css'
+
+import { Image } from 'astro:assets'
+import coverImage from '../assets/cover_image.png';
+
+const livres = getLivres()
+---
+
+<Base titre="Accueil">
+  <!-- Hero : illustration recadrée sur le personnage, boutons superposés -->
+  <section class="hero">
+    <div class="hero-image">
+      <Image src={coverImage} alt="Espiègle à cheval tenant un miroir et une chouette, gravure sur fond de carte d'Europe" widths={[800, 1200, 1600]} sizes="(max-width: 1400px) 116vw, 1624px" loading="eager" />
+    </div>
+    <div class="hero-actions">
+      <a href={url("/recherche")} class="btn btn-hero">
+        <span class="material-icons">search</span>
+        Rechercher dans les œuvres
+      </a>
+      <a href="#collection" class="btn btn-hero">
+        <span class="material-icons">library_books</span>
+        Parcourir la collection
+      </a>
+    </div>
+  </section>
+
+  <!-- Présentation du projet -->
+  <section class="presentation conteneur">
+    <div class="presentation-texte">
+      <p class="presentation-chapeau">
+        Du XV<sup>e</sup> au XVII<sup>e</sup> siècle, l'imprimerie diffuse dans toute l'Europe des recueils
+        facétieux de plaisanteries, de nouvelles, d'anecdotes et de bons mots. Sous leur apparente légèreté,
+        ces textes éclairent les tensions sociales, politiques et religieuses de leur époque.
+      </p>
+      <p>
+        Pour explorer ce vaste corpus, le projet <strong>ESPIÈGLE 15-17</strong>
+        (« <span class="acronyme"><b>E</b>njeux <b>S</b>ociaux et <b>P</b>ol<b>I</b>tiques des
+        r<b>E</b>cueils facétieux : <b>G</b>aieté et <b>L</b>iberté de rire en <b>E</b>urope,
+        XV<sup>e</sup>-XVII<sup>e</sup> siècles</span> ») réunit des spécialistes de littérature,
+        d'histoire, d'histoire du livre et de stylistique.
+      </p>
+    </div>
+
+    <ul class="presentation-atouts">
+      <li>
+        <span class="material-icons">auto_stories</span>
+        <div><strong>Numérisation complète</strong><p>Chaque recueil est numérisé page à page et accompagné de sa transcription intégrale.</p></div>
+      </li>
+      <li>
+        <span class="material-icons">manage_search</span>
+        <div><strong>Moteur de recherche</strong><p>Les textes sont interrogeables selon de multiples critères.</p></div>
+      </li>
+      <li>
+        <span class="material-icons">download</span>
+        <div><strong>Libre accès</strong><p>Tous les recueils sont téléchargeables librement.</p></div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Collection -->
+  <section id="collection" class="conteneur">
+    <div class="section-entete">
+      <h2 class="section-titre">Collection</h2>
+      <p class="section-sous-titre">{livres.length} œuvres numérisées</p>
+    </div>
+
+    <div class="grille-livres">
+      {livres.map(livre => <CarteLivre livre={livre} />)}
+    </div>
+  </section>
+</Base>

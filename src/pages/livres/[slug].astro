@@ -1,0 +1,564 @@
+---
+import Base from '../../layouts/Base.astro'
+import CloverViewer from '../../components/CloverViewer.jsx'
+import RechercheLivre from '../../components/recherche/RechercheLivre.jsx'
+import { getLivres, getLivreAvecTranscription, getEquivalences, nomLisible } from '../../lib/parseData'
+import { PAGES_PAR_TRANCHE, htmlTranche, bornesAncres } from '../../lib/tranches'
+import {url} from "../../lib/url"
+import '../../styles/livre.css'
+
+export async function getStaticPaths() {
+  const livres = getLivres()
+  return livres.map(livre => ({
+    params: { slug: livre.slug },
+  }))
+}
+
+const { slug } = Astro.params
+const livre = getLivreAvecTranscription(slug!)
+
+if (!livre) {
+  return Astro.redirect(url('/404'))
+}
+
+const auteurs = Array.isArray(livre.auteur) ? livre.auteur.join(', ') : livre.auteur
+
+// Ligne affichée sous l'auteur ; toutes les autres métadonnées sont dans le bloc repliable
+const publication = ['Lieu', 'Editeur normalisé', 'Date publication']
+  .map(cle => String(livre[cle] ?? '').trim())
+  .filter(Boolean)
+  .join(', ')
+
+// ── Métadonnées et éditions ───────────────────────────────────────────────────
+// Lignes du CSV sans id repliées par parseData. On affiche l'ouvrage original
+// et ses éditions, une ligne par édition, une colonne par métadonnée.
+const editions = (livre.editions ?? []) as Record<string, string>[]
+const toutesEditions = [livre as Record<string, unknown>, ...editions]
+const CHAMPS_EXCLUS = new Set(['id', 'slug', 'manifeste_url', 'transcriptionHtml', 'transcriptionPages', 'editions'])
+// Ordre des champs : on suit l'ordre des colonnes du CSV
+const champsEditions = Object.keys(livre)
+  .filter(k => !CHAMPS_EXCLUS.has(k))
+  // on masque les champs vides pour toutes les éditions
+  .filter(champ => toutesEditions.some(ed => String(ed[champ] ?? '').trim() !== ''))
+
+const toutesAncres = livre.transcriptionPages.flatMap(p => p.ancres ?? []).filter(a => a.inPassages)
+const baseUrl = new URL(url(`/livres/${slug}`), Astro.url).toString()
+// Vide si le livre n'a pas (encore) de manifeste : pas de viewer
+const manifesteUrl = !livre.manifeste_url ? ''
+  : livre.manifeste_url.startsWith('http') ? livre.manifeste_url
+  : new URL(url(livre.manifeste_url), Astro.url).toString()
+
+const nbPages = livre.transcriptionPages.length
+// XML_DEPOT_URL : dossier où le XML source est publié (dépôt de données) ; sans
+// elle, copie servie par le site (src/pages/transcriptions/[slug].xml.ts).
+const depotXml = process.env.XML_DEPOT_URL?.replace(/\/+$/, '')
+const lienXml = nbPages === 0 ? null
+  : depotXml ? `${depotXml}/${livre.id}.xml`
+  : url(`/transcriptions/${slug}.xml`)
+
+// Transcription chargée par tranches : seule la première est dans la page, les
+// suivantes sont servies par src/pages/livres/[slug]/tranches/[tranche].html.ts.
+const premiereTranche = htmlTranche(livre.transcriptionPages, 0)
+const urlTranches = url(`/livres/${slug}/tranches/`)
+const bornes = bornesAncres(livre.transcriptionPages)
+
+// Recherche plein-texte dans l'ouvrage : index Pagefind filtré sur ce livre,
+// chargé à la demande. Seules les règles d'équivalence sont passées en props.
+const equivalences = getEquivalences()
+---
+
+<Base titre={livre.titre} description={`${livre.titre} — ${auteurs}`}>
+  <div class="livre-entete">
+    <div class="conteneur">
+      <div class="fil-ariane">
+        <a href={url("/")}>Accueil</a>
+        <span class="material-icons" style="font-size:16px;opacity:0.5">chevron_right</span>
+        <span>Collection</span>
+        <span class="material-icons" style="font-size:16px;opacity:0.5">chevron_right</span>
+        <span>{livre.titre}</span>
+      </div>
+      <h1 class="livre-titre">{livre.titre}</h1>
+      {livre.sous_titre && <p class="livre-sous-titre">{livre.sous_titre as string}</p>}
+      <p class="livre-auteur">{auteurs}</p>
+      {publication && <p class="livre-publication">{publication}</p>}
+
+      <details class="editions-bloc">
+        <summary class="editions-summary">
+          <span class="material-icons editions-chevron">chevron_right</span>
+          <span class="material-icons">library_books</span>
+          Métadonnées et Éditions
+          {editions.length > 0 && <span class="editions-compteur">{editions.length + 1}</span>}
+        </summary>
+        <div class="editions-tableau-wrap">
+          <table class="editions-tableau">
+            <thead>
+              <tr>
+                <th class="editions-col-champ">Édition</th>
+                {champsEditions.map(champ => (
+                  <th>{nomLisible(champ)}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {toutesEditions.map((ed, i) => (
+                <tr>
+                  <th scope="row" class="editions-col-champ">
+                    {i === 0 ? 'Originale' : `Édition ${i + 1}`}
+                  </th>
+                  {champsEditions.map(champ => {
+                    const v = ed[champ]
+                    const txt = Array.isArray(v) ? v.join(', ') : String(v ?? '')
+                    const vOrig = toutesEditions[0][champ]
+                    const txtOrig = Array.isArray(vOrig) ? vOrig.join(', ') : String(vOrig ?? '')
+                    // Une valeur d'édition qui diffère de l'originale est mise en
+                    // évidence avec le style des badges de métadonnées (.chip).
+                    const different = i > 0 && txt !== txtOrig
+                    return (
+                      <td>
+                        {txt
+                          ? (different ? <span class="chip">{txt}</span> : txt)
+                          : '—'}
+                      </td>
+                    )
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="conteneur">
+    <div class="mode-barre">
+      <div class="mode-boutons" role="group" aria-label="Mode d'affichage">
+        <button id="btn-mode-onglets" class="mode-btn actif" onclick="setMode('onglets')" title="Afficher en onglets">
+          <span class="material-icons">tab</span>
+          Onglets
+        </button>
+        <button id="btn-mode-cote" class="mode-btn" onclick="setMode('cote')" title="Afficher côte à côte">
+          <span class="material-icons">view_column</span>
+          Côte à côte
+        </button>
+      </div>
+    </div>
+
+    {nbPages > 0 && (
+      <RechercheLivre
+        livreId={livre.id}
+        equivalences={equivalences}
+        client:idle
+      />
+    )}
+
+    <!--
+      CloverViewer monté avec client:only (Clover accède à `document` à l'import).
+      Synchro via CustomEvents :
+        clover:goto        { index }  transcription → viewer
+        clover:pagechange  { index }  viewer → transcription
+        clover:sync-enabled / clover:sync-disabled  — activé en mode côte-à-côte
+    -->
+    <div id="viewer-anchor" style="display:none">
+      {manifesteUrl ? (
+        <CloverViewer manifestUrl={manifesteUrl} client:only="react" />
+      ) : (
+        <div class="transcription-vide">
+          <span class="material-icons">image_not_supported</span>
+          <p>Images non disponibles pour ce livre.</p>
+        </div>
+      )}
+    </div>
+
+    <div id="livre-corps" class="livre-corps mode-onglets">
+
+      <!-- ── MODE ONGLETS ── -->
+      <section id="section-onglets" class="viewer-section carte">
+        <div class="section-onglets-nav">
+          <button class="onglet actif" id="btn-viewer" onclick="afficherPanel('viewer')">
+            <span class="material-icons">image</span>
+            Pages numérisées
+          </button>
+          <button class="onglet" id="btn-transcription" onclick="afficherPanel('transcription')">
+            <span class="material-icons">subject</span>
+            Transcription
+          </button>
+          {toutesAncres.length > 0 && (
+            <button class="onglet" id="btn-passages" onclick="afficherPanel('passages')">
+              <span class="material-icons">link</span>
+              Passages
+            </button>
+          )}
+          {lienXml && (
+            <a class="btn-telecharger" href={lienXml} download={`${slug}.xml`} title="Télécharger la transcription (XML)">
+              <span class="material-icons">download</span>
+              XML
+            </a>
+          )}
+        </div>
+
+        <div id="panel-viewer" class="panel actif">
+          <div id="viewer-slot-onglets" class="viewer-slot viewer-slot-onglets"></div>
+        </div>
+
+        <div id="panel-transcription" class="panel">
+          <!--
+            Transcription rendue une seule fois : setMode() déplace ce conteneur
+            entre #transcription-slot-onglets et #transcription-slot-cote, comme le viewer.
+          -->
+          <div id="transcription-slot-onglets" class="transcription-slot">
+            {nbPages > 0 ? (
+              <div id="transcription" class="transcription-conteneur">
+                {nbPages > 1 && (
+                  <div class="transcription-nav">
+                    <button class="nav-page-btn" id="btn-prev" onclick="naviguerPage(-1)" disabled aria-label="Page précédente">
+                      <span class="material-icons">chevron_left</span>
+                      Précédent
+                    </button>
+                    <div class="nav-select-wrap">
+                      <label for="select-page" class="nav-select-label">
+                        <span class="material-icons">description</span>
+                      </label>
+                      <select id="select-page" class="nav-select" onchange="allerPageSelect(this.value)" aria-label="Aller à la page">
+                        {livre.transcriptionPages.map((page, i) => (
+                          <option value={i}>Page {page.n}</option>
+                        ))}
+                      </select>
+                      <span class="nav-total">/ {nbPages}</span>
+                    </div>
+                    <button class="nav-page-btn" id="btn-next" onclick="naviguerPage(+1)" aria-label="Page suivante">
+                      Suivant
+                      <span class="material-icons">chevron_right</span>
+                    </button>
+                  </div>
+                )}
+                <div class="transcription-scroll">
+                  <Fragment set:html={premiereTranche} />
+                  <p id="transcription-chargement" class="transcription-chargement" hidden>
+                    <span class="material-icons">hourglass_empty</span>
+                    <span class="transcription-chargement-texte"></span>
+                  </p>
+                </div>
+                {nbPages > 1 && (
+                  <div class="transcription-nav-bas">
+                    <button class="nav-page-btn" id="btn-bas-prev" onclick="naviguerPage(-1)" aria-label="Page précédente">
+                      <span class="material-icons">chevron_left</span>
+                      Précédent
+                    </button>
+                    <span class="nav-bas-info" id="nav-bas-info">Page 1 / {nbPages}</span>
+                    <button class="nav-page-btn" id="btn-bas-next" onclick="naviguerPage(+1)" aria-label="Page suivante">
+                      Suivant
+                      <span class="material-icons">chevron_right</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div id="transcription" class="transcription-vide">
+                <span class="material-icons">info</span>
+                <p>Aucune transcription disponible pour ce livre.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {toutesAncres.length > 0 && (
+          <div id="panel-passages" class="panel">
+            <div class="passages-conteneur">
+              <p class="passages-intro">
+                <span class="material-icons" style="font-size:16px;vertical-align:middle">info</span>
+                Chaque lien ouvre directement ce passage dans la transcription.
+                Vous pouvez copier l'URL pour partager un endroit précis du texte.
+              </p>
+              <div class="passages-liste">
+                {toutesAncres.map(ancre => (
+                  <div class="passage-item">
+                    <span class="passage-page chip">p. {ancre.pageN}</span>
+                    <a class="passage-lien" href={`#${ancre.id}`} onclick={`allerAuPassage('${ancre.id}'); return false;`}>
+                      {ancre.label || '—'}
+                    </a>
+                    <button class="passage-copier" onclick={`copierUrl('${baseUrl}#${ancre.id}', this)`} title="Copier le lien direct">
+                      <span class="material-icons">content_copy</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
+      <!-- ── MODE CÔTE À CÔTE ── -->
+      <div id="section-cote" class="cote-wrapper">
+
+        <section class="cote-colonne carte">
+          <div class="cote-entete">
+            <span class="material-icons">image</span>
+            Pages numérisées
+          </div>
+          <div id="viewer-slot-cote" class="viewer-slot viewer-slot-cote"></div>
+        </section>
+
+        <section class="cote-colonne cote-transcription-colonne carte">
+          <div class="cote-entete">
+            <span class="material-icons">subject</span>
+            Transcription
+            {lienXml && (
+              <a class="btn-telecharger" href={lienXml} download={`${slug}.xml`} title="Télécharger la transcription (XML)">
+                <span class="material-icons">download</span>
+                XML
+              </a>
+            )}
+          </div>
+          <div id="transcription-slot-cote" class="transcription-slot"></div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</Base>
+
+
+<script define:vars={{ nbPages, PAGES_PAR_TRANCHE, urlTranches, bornes }}>
+  // ── État unique ───────────────────────────────────────────────────────────────
+  // Le viewer et la transcription existent en un seul exemplaire chacun ;
+  // setMode() les déplace entre les emplacements des deux modes.
+  const etat = { page: 0 }
+
+  // ── Déplacement d'un élément sans le recréer ────────────────────────────────
+  function deplacer(elementId, slotId) {
+    const el   = document.getElementById(elementId)
+    const slot = document.getElementById(slotId)
+    if (el && slot && el.parentElement !== slot) slot.appendChild(el)
+  }
+
+  function placerViewer(slotId) {
+    const anchor = document.getElementById('viewer-anchor')
+    const slot   = document.getElementById(slotId)
+    if (!anchor || !slot) return
+    while (anchor.firstChild) slot.appendChild(anchor.firstChild)
+  }
+
+  function retirerViewer(slotId) {
+    const anchor = document.getElementById('viewer-anchor')
+    const slot   = document.getElementById(slotId)
+    if (!anchor || !slot) return
+    while (slot.firstChild) anchor.appendChild(slot.firstChild)
+  }
+
+  function modeCote() {
+    return document.getElementById('livre-corps')?.classList.contains('mode-cote') ?? false
+  }
+
+  // ── Onglets ──────────────────────────────────────────────────────────────────
+  function afficherPanel(nom) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('actif'))
+    document.querySelectorAll('.onglet').forEach(b => b.classList.remove('actif'))
+    document.getElementById(`panel-${nom}`)?.classList.add('actif')
+    document.getElementById(`btn-${nom}`)?.classList.add('actif')
+  }
+
+  // ── Tranches de la transcription ─────────────────────────────────────────────
+  // La tranche 0 est dans la page ; les autres sont chargées à la première visite.
+  const tranches = new Map([[0, Promise.resolve()]])
+
+  function chargerTranche(t) {
+    if (!tranches.has(t)) {
+      tranches.set(t, fetch(`${urlTranches}${t}.html`)
+        .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.text() })
+        .then(html => document.getElementById('transcription-chargement')?.insertAdjacentHTML('beforebegin', html))
+        .catch(e => { tranches.delete(t); throw e }))   // nouvel essai à la prochaine visite
+    }
+    return tranches.get(t)
+  }
+
+  // Page d'une ancre (« paragraph-123 ») : ids numérotés dans l'ordre du livre,
+  // bornes[i] = nombre d'ancres avant la page i (voir src/lib/tranches.ts).
+  function pageDeAncre(ancreId) {
+    const el = document.getElementById(ancreId)
+    if (el) {
+      const page = el.closest('.transcription-page')
+      return page ? Number(page.dataset.index) : null
+    }
+    const k = Number(ancreId.match(/-(\d+)$/)?.[1])
+    if (!k) return null
+    const i = bornes.findIndex(b => b >= k) - 1
+    return i >= 0 && i < nbPages ? i : null
+  }
+
+  // ── Affichage d'une page ─────────────────────────────────────────────────────
+  // Navigation mise à jour tout de suite ; la page s'affiche une fois sa tranche chargée.
+  function afficherPage(index) {
+    index = Math.max(0, Math.min(index, nbPages - 1))
+    etat.page = index
+
+    const t = Math.floor(index / PAGES_PAR_TRANCHE)
+    const chargement = document.getElementById('transcription-chargement')
+    const message = texte => { chargement.querySelector('.transcription-chargement-texte').textContent = texte }
+    document.querySelector('.transcription-page.active')?.classList.remove('active')
+    if (chargement) {
+      chargement.hidden = true
+      chargement.classList.remove('erreur')
+    }
+    const affichage = chargerTranche(t).then(() => {
+      if (etat.page !== index) return
+      if (chargement) chargement.hidden = true
+      document.getElementById(`page-${index}`)?.classList.add('active')
+      // Approche de la fin de la tranche : on précharge la suivante
+      if (index % PAGES_PAR_TRANCHE >= PAGES_PAR_TRANCHE - 3 && (t + 1) * PAGES_PAR_TRANCHE < nbPages) {
+        chargerTranche(t + 1).catch(() => {})
+      }
+    }, () => {
+      if (etat.page !== index || !chargement) return
+      message('Page indisponible (erreur de chargement).')
+      chargement.classList.add('erreur')
+    })
+    if (chargement && document.getElementById(`page-${index}`) === null) {
+      message('Chargement de la page…')
+      chargement.hidden = false
+    }
+
+    const sel = document.getElementById('select-page')
+    if (sel) sel.value = String(index)
+
+    const btnPrev = document.getElementById('btn-prev')
+    const btnNext = document.getElementById('btn-next')
+    if (btnPrev) btnPrev.disabled = index === 0
+    if (btnNext) btnNext.disabled = index === nbPages - 1
+
+    document.getElementById('btn-bas-prev')?.classList.toggle('invisible', index === 0)
+    document.getElementById('btn-bas-next')?.classList.toggle('invisible', index === nbPages - 1)
+
+    const info = document.getElementById('nav-bas-info')
+    if (info) info.textContent = `Page ${index + 1} / ${nbPages}`
+
+    document.querySelector('#transcription .transcription-scroll')?.scrollTo({ top: 0, behavior: 'smooth' })
+    return affichage
+  }
+
+  // Affiche la page dans le mode actif (onglet Transcription en mode onglets)
+  // et aligne le viewer.
+  function allerALaPage(index) {
+    const affichage = afficherPage(index)
+    if (!modeCote()) afficherPanel('transcription')
+    window.dispatchEvent(new CustomEvent('clover:goto', { detail: { index: etat.page } }))
+    return affichage
+  }
+
+  function naviguerPage(delta) {
+    afficherPage(etat.page + delta)
+    // Toujours envoyer au viewer (silencieux en mode onglets, visible en côte-à-côte)
+    window.dispatchEvent(new CustomEvent('clover:goto', { detail: { index: etat.page } }))
+  }
+
+  function allerPageSelect(valeur) {
+    afficherPage(parseInt(valeur, 10))
+    window.dispatchEvent(new CustomEvent('clover:goto', { detail: { index: etat.page } }))
+  }
+
+  // ── Viewer → transcription ───────────────────────────────────────────────────
+  window.addEventListener('clover:pagechange', (e) => {
+    // N'écouter qu'en mode côte-à-côte (en mode onglets le viewer est libre)
+    if (!modeCote()) return
+    const index = e.detail?.index ?? 0
+    if (index !== etat.page) afficherPage(index)
+  })
+
+  // ── Recherche plein-texte → transcription + viewer ──────────────────────────
+  // Émis par RechercheLivre.jsx au clic sur un résultat.
+  window.addEventListener('transcription:goto', (e) => allerALaPage(e.detail?.index ?? 0))
+
+  // ── Navigation vers un passage (ancre) ───────────────────────────────────────
+  async function allerAuPassage(ancreId) {
+    const index = pageDeAncre(ancreId)
+    if (index !== null) await allerALaPage(index)
+    else if (!document.getElementById(ancreId)) return
+    else if (!modeCote()) afficherPanel('transcription')
+
+    const el = document.getElementById(ancreId)
+    if (!el) return
+    setTimeout(() => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      el.classList.add('transcription-ancre-cible')
+      setTimeout(() => el.classList.remove('transcription-ancre-cible'), 2000)
+    }, 80)
+  }
+
+  function copierUrl(url, btn) {
+    navigator.clipboard.writeText(url).then(() => {
+      const icon = btn.querySelector('.material-icons')
+      if (icon) {
+        icon.textContent = 'check'
+        setTimeout(() => { icon.textContent = 'content_copy' }, 1800)
+      }
+    })
+  }
+
+  // ── Mode d'affichage ─────────────────────────────────────────────────────────
+  function setMode(mode) {
+    const corps      = document.getElementById('livre-corps')
+    const btnOnglets = document.getElementById('btn-mode-onglets')
+    const btnCote    = document.getElementById('btn-mode-cote')
+    if (!corps) return
+
+    if (mode === 'onglets') {
+      window.dispatchEvent(new CustomEvent('clover:sync-disabled'))
+      retirerViewer('viewer-slot-cote')
+      corps.className = 'livre-corps mode-onglets'
+      btnOnglets?.classList.add('actif')
+      btnCote?.classList.remove('actif')
+      placerViewer('viewer-slot-onglets')
+      deplacer('transcription', 'transcription-slot-onglets')
+    } else {
+      retirerViewer('viewer-slot-onglets')
+      corps.className = 'livre-corps mode-cote'
+      btnOnglets?.classList.remove('actif')
+      btnCote?.classList.add('actif')
+      placerViewer('viewer-slot-cote')
+      deplacer('transcription', 'transcription-slot-cote')
+      // Activer la synchro et aligner le viewer sur la page courante
+      window.dispatchEvent(new CustomEvent('clover:sync-enabled'))
+      window.dispatchEvent(new CustomEvent('clover:goto', { detail: { index: etat.page } }))
+    }
+
+    sessionStorage.setItem('livreMode', mode)
+  }
+
+  // Ancre d'URL : #page-<index> (liens de la recherche) ou id d'un passage.
+  // Toujours ouverte en côte-à-côte.
+  function gererAncreUrl(hash) {
+    setMode('cote')
+    const page = hash.match(/^page-(\d+)$/)
+    // Laisser le temps au viewer de se placer dans son slot avant de scroller
+    setTimeout(() => page ? allerALaPage(Number(page[1])) : allerAuPassage(hash), 300)
+  }
+
+  // ── Init ─────────────────────────────────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', () => {
+    afficherPage(0)
+
+    setTimeout(() => {
+      const hash = window.location.hash?.slice(1)
+      if (hash) {
+        gererAncreUrl(hash)
+      } else {
+        // Pas d'ancre : respecter la préférence sauvegardée, défaut = côte-à-côte
+        const modeSauvegarde = sessionStorage.getItem('livreMode')
+        setMode(modeSauvegarde === 'onglets' ? 'onglets' : 'cote')
+      }
+    }, 100)
+  })
+
+  // Lien direct sur une page déjà ouverte (clic sur un « # » du texte, URL modifiée)
+  window.addEventListener('hashchange', () => {
+    const hash = window.location.hash?.slice(1)
+    if (hash) gererAncreUrl(hash)
+  })
+
+  window.afficherPanel   = afficherPanel
+  window.naviguerPage    = naviguerPage
+  window.allerPageSelect = allerPageSelect
+  window.setMode         = setMode
+  window.allerAuPassage  = allerAuPassage
+  window.copierUrl       = copierUrl
+</script>

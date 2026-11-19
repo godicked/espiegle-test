@@ -1,0 +1,106 @@
+---
+// Barre de recherche de la navigation : filtre les ouvrages par titre, titre
+// générique ou auteur et propose des liens directs vers leur page. Ne cherche
+// pas dans les transcriptions (c'est le rôle de la page /recherche).
+// La liste des ouvrages (/ouvrages.json, voir src/pages/ouvrages.json.ts) est
+// chargée au premier usage de la barre, pas inlinée dans chaque page.
+import { url } from '../lib/url'
+import '../styles/recherche-ouvrages.css'
+---
+
+<div class="recherche-ouvrages" role="search" data-url={url('/ouvrages.json')}>
+  <span class="material-icons recherche-ouvrages-icone" aria-hidden="true">search</span>
+  <input
+    type="search"
+    class="recherche-ouvrages-champ"
+    placeholder="Rechercher un ouvrage, un auteur…"
+    aria-label="Rechercher un ouvrage par titre ou auteur"
+    autocomplete="off"
+    role="combobox"
+    aria-expanded="false"
+    aria-controls="recherche-ouvrages-liste"
+  />
+  <ul id="recherche-ouvrages-liste" class="recherche-ouvrages-liste" role="listbox" hidden></ul>
+</div>
+
+<script>
+  interface Ouvrage { titre: string; detail: string; auteur: string; href: string }
+
+  const MAX_RESULTATS = 8
+  const normaliser = (s: string) =>
+    s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+
+  const racine = document.querySelector<HTMLElement>('.recherche-ouvrages')!
+  const champ = racine.querySelector<HTMLInputElement>('input')!
+  const liste = racine.querySelector<HTMLUListElement>('ul')!
+  let ouvrages: (Ouvrage & { cle: string })[] = []
+  let chargement: Promise<void> | null = null
+  const charger = () => chargement ??= fetch(racine.dataset.url!)
+    .then(r => r.json())
+    .then((liste: Ouvrage[]) => { ouvrages = liste.map(o => ({ ...o, cle: normaliser(`${o.titre} ${o.detail} ${o.auteur}`) })) })
+    .catch(e => { chargement = null; console.error('[recherche] ouvrages', e) })
+
+  let actif = -1
+
+  function fermer() {
+    liste.hidden = true
+    champ.setAttribute('aria-expanded', 'false')
+    actif = -1
+  }
+
+  function surligner(i: number) {
+    const items = liste.querySelectorAll('a')
+    items.forEach((a, j) => a.classList.toggle('actif', j === i))
+    actif = i
+    items[i]?.scrollIntoView({ block: 'nearest' })
+  }
+
+  async function afficher() {
+    await charger()
+    const mots = normaliser(champ.value).split(/\s+/).filter(Boolean)
+    if (mots.length === 0) return fermer()
+
+    const resultats = ouvrages.filter(o => mots.every(m => o.cle.includes(m))).slice(0, MAX_RESULTATS)
+    liste.replaceChildren()
+    if (resultats.length === 0) {
+      const vide = document.createElement('li')
+      vide.className = 'recherche-ouvrages-vide'
+      vide.textContent = 'Aucun ouvrage trouvé'
+      liste.append(vide)
+    }
+    for (const o of resultats) {
+      const li = document.createElement('li')
+      const a = document.createElement('a')
+      a.href = o.href
+      a.setAttribute('role', 'option')
+      const titre = document.createElement('span')
+      titre.className = 'recherche-ouvrages-titre'
+      titre.textContent = o.titre
+      const auteur = document.createElement('span')
+      auteur.className = 'recherche-ouvrages-auteur'
+      auteur.textContent = o.auteur
+      a.append(titre, auteur)
+      li.append(a)
+      liste.append(li)
+    }
+    liste.hidden = false
+    champ.setAttribute('aria-expanded', 'true')
+    actif = -1
+  }
+
+  champ.addEventListener('input', afficher)
+  champ.addEventListener('focus', afficher)
+  champ.addEventListener('keydown', e => {
+    const n = liste.querySelectorAll('a').length
+    if (e.key === 'ArrowDown' && n) { e.preventDefault(); surligner((actif + 1) % n) }
+    else if (e.key === 'ArrowUp' && n) { e.preventDefault(); surligner((actif - 1 + n) % n) }
+    else if (e.key === 'Escape') fermer()
+    else if (e.key === 'Enter' && n) {
+      e.preventDefault()
+      liste.querySelectorAll('a')[Math.max(actif, 0)].click()
+    }
+  })
+  document.addEventListener('click', e => {
+    if (!racine.contains(e.target as Node)) fermer()
+  })
+</script>

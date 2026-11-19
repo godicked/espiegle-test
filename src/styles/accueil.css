@@ -1,0 +1,158 @@
+/* Page d'accueil : hero et grille de la collection. */
+
+.hero {
+  position: relative;
+  max-width: 1400px;
+  margin: 0 auto;
+  /* Hauteur fixée par le ratio : l'image, plus grande, est recadrée dessous. */
+  aspect-ratio: 2.3;
+  overflow: hidden;
+  background: #fff;
+}
+
+/* L'illustration est carrée et encadrée : on l'élargit pour faire sortir le
+   cadre et le titre, et on la remonte pour centrer le personnage. Les marges
+   en % se rapportent à la largeur du conteneur. */
+.hero-image img {
+  display: block;
+  width: 116%;
+  height: auto;
+  margin-left: -8%;
+  margin-top: -28%;
+}
+
+.hero-actions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 9%;
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+  padding: 0 16px;
+}
+
+.btn-hero {
+  padding: 14px 28px;
+  font-size: 1.05rem;
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  box-shadow: var(--md-elevation-4);
+  border-radius: 6px;
+}
+
+.btn-hero .material-icons { font-size: 26px; }
+
+.btn-hero:hover {
+  background: var(--md-primary-dark);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .hero { aspect-ratio: auto; }
+  .hero-image { aspect-ratio: 1.55; overflow: hidden; }
+  .hero-image img { margin-top: -27%; }
+  .hero-actions {
+    position: static;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: var(--md-background);
+  }
+  .btn-hero { justify-content: center; }
+}
+
+/* ── Présentation ── */
+.presentation {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 48px;
+  align-items: start;
+  padding-top: 48px;
+  padding-bottom: 48px;
+}
+
+.presentation-texte {
+  border-left: 3px solid var(--md-primary);
+  padding-left: 24px;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.presentation-texte p + p { margin-top: 16px; }
+
+.presentation-chapeau {
+  font-family: var(--font-texte);
+  font-size: 1.45rem;
+  line-height: 1.5;
+  color: var(--md-on-surface);
+}
+
+.presentation-texte sup { font-size: 0.65em; }
+
+.acronyme { font-style: italic; }
+.acronyme b { color: var(--md-primary); font-style: normal; }
+
+.presentation-atouts {
+  list-style: none;
+  border-top: 1px solid var(--md-divider);
+}
+
+.presentation-atouts li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--md-divider);
+}
+
+.presentation-atouts .material-icons {
+  color: var(--md-primary);
+  font-size: 22px;
+  margin-top: 1px;
+}
+
+.presentation-atouts strong {
+  font-family: var(--font-texte);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.presentation-atouts p {
+  margin-top: 2px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--md-on-surface-medium);
+}
+
+@media (max-width: 900px) {
+  .presentation { grid-template-columns: 1fr; gap: 32px; padding: 32px 16px; }
+  .presentation-chapeau { font-size: 1.25rem; }
+}
+
+.section-entete {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.section-titre {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--md-on-surface);
+}
+
+.section-sous-titre {
+  color: var(--md-on-surface-medium);
+  font-size: 0.9rem;
+}
+
+.grille-livres {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}

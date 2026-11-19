@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro'
+import { getMembres } from '../lib/parseData'
+import { url } from '../lib/url'
+import '../styles/membres.css'
+
+const membres = getMembres()
+const site = (lien: string) => new URL(lien).hostname.replace(/^www\./, '')
+---
+
+<Base titre="Membres" description="Les membres du projet ESPIÈGLE 15-17">
+  <section class="conteneur">
+    <div class="membres-entete">
+      <h1 class="membres-titre">Membres du projet</h1>
+      <p class="membres-sous-titre">{membres.length} membres</p>
+    </div>
+
+    <ul class="grille-membres">
+      {membres.map(membre => (
+        <li class="carte carte-membre">
+          <img class="carte-membre-avatar" src={url(`/membres/${membre.avatar}`)} alt={`Portrait de ${membre.nom}`} width="112" height="112" loading="lazy" decoding="async" />
+          <div class="carte-membre-info">
+            <h2 class="carte-membre-nom">{membre.nom}</h2>
+            <p class="carte-membre-description">{membre.description}</p>
+            {membre.liens.length > 0 && (
+              <ul class="carte-membre-liens">
+                {membre.liens.map(lien => (
+                  <li>
+                    <a href={lien}>
+                      <span class="material-icons">open_in_new</span>
+                      {site(lien)}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+</Base>
