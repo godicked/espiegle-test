@@ -19,7 +19,7 @@
  */
 import * as pagefind from 'pagefind'
 import { getLivres, getTextePages, getEquivalences } from './parseData'
-import { creerNormaliseur } from './normalisation.js'
+import { creerNormaliseur, LANGUE_INDEX } from './normalisation.js'
 import { PAGES_PAR_TRANCHE, SEPARATEUR_PAGES } from './tranches'
 
 export async function construireIndexRecherche(outputPath: string): Promise<{ livres: number, pages: number }> {
@@ -39,7 +39,7 @@ export async function construireIndexRecherche(outputPath: string): Promise<{ li
       const resultat = await index.addCustomRecord({
         url: `/livres/${livre.slug}/#page-${debut}`,
         content,
-        language: 'fr',
+        language: LANGUE_INDEX,
         meta: {
           livre: livre.id,
           debut: String(debut),

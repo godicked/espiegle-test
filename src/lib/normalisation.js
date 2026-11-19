@@ -142,6 +142,16 @@ export function correspondAuTerme(terme, mot) {
   return i >= Math.min(terme.length, Math.max(3, Math.ceil(terme.length * 0.6)))
 }
 
+/**
+ * Langue déclarée à Pagefind, à l'indexation comme à la recherche. Volontairement
+ * pas « fr » : le stemmer français réduit les mots à une racine courte puis
+ * Pagefind cherche tous les mots qui commencent par cette racine (« neri » → « ner »
+ * → neron, nerf… ; « honne » → « hon » → honte, honneur). Sur un gros corpus, ce
+ * bruit noyait les vrais résultats. Sans stemmer, seul reste l'élargissement par
+ * préfixe du mot entier (« loup » trouve « loups »).
+ */
+export const LANGUE_INDEX = 'zz'
+
 /** Termes d'une requête normalisée (normaliserRequete), guillemets retirés. */
 export const termesRequete = requete => requete.replaceAll('"', ' ').split(/\s+/).filter(Boolean)
 

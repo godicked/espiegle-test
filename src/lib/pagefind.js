@@ -63,7 +63,7 @@ export function rechercher(requete, options = {}, nbDonnees = 0) {
       if (!worker) demarrerWorker()
       const id = prochainId++
       enCours.set(id, attente)
-      worker.postMessage({ id, base: url('').replace(/\/+$/, ''), langue: document.documentElement.lang, requete, options, nbDonnees })
+      worker.postMessage({ id, base: url('').replace(/\/+$/, ''), requete, options, nbDonnees })
     }
     if (worker) abandonnerSauf(requete)
     attente.relancer()

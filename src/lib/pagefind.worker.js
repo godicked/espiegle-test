@@ -5,15 +5,14 @@
  * fréquent : dans un worker, la page reste réactive et une recherche dépassée
  * s'interrompt en terminant le worker (voir src/lib/pagefind.js).
  *
- * Messages reçus : { id, base, langue, requete, options, nbDonnees }
+ * Messages reçus : { id, base, requete, options, nbDonnees }
  * Réponse : { id, total, filters, donnees } ou { id, erreur }
  */
-import { correspondAuTerme, termesRequete } from './normalisation.js'
+import { correspondAuTerme, termesRequete, LANGUE_INDEX } from './normalisation.js'
 
 // Pagefind lit `document` et `window` à l'initialisation (langue de la page,
-// origine) : absents dans un worker, l'accès lèverait une ReferenceError.
-let langue = 'fr'
-globalThis.document = { querySelector: () => ({ getAttribute: () => langue }) }
+// ici celle de l'index, et origine) : absents dans un worker, l'accès lèverait une ReferenceError.
+globalThis.document = { querySelector: () => ({ getAttribute: () => LANGUE_INDEX }) }
 globalThis.window = undefined
 
 let chargement = null
@@ -39,9 +38,8 @@ function correspondanceValide(requete, premier) {
   return termesRequete(requete).every(t => trouves.some(m => correspondAuTerme(t, m)))
 }
 
-self.onmessage = async ({ data: { id, base, langue: l, requete, options, nbDonnees } }) => {
+self.onmessage = async ({ data: { id, base, requete, options, nbDonnees } }) => {
   try {
-    langue = l || langue
     const pf = await chargerPagefind(base)
     const recherche = await pf.search(requete, options)
     const n = Math.max(1, nbDonnees)
