@@ -87,7 +87,7 @@ export function rechercher(requete, options = {}, nbDonnees = 0) {
  *
  * Retourne [{ page, n, occurrences, segments, coupeAvant, coupeApres }].
  */
-export function extraitsParPage(donnees, requete, motsIndexes, taille = 32) {
+export function extraitsParPage(donnees, requete, motsIndexes, taille = 32, tousLesTermes = true) {
   const textes = donnees.meta.texte.split(SEPARATEUR_PAGES)
   const numeros = donnees.meta.n.split(SEPARATEUR_PAGES)
   const debutTranche = Number(donnees.meta.debut)
@@ -113,7 +113,8 @@ export function extraitsParPage(donnees, requete, motsIndexes, taille = 32) {
 
   const termes = termesRequete(requete)
   const pagesRetenues = [...marquesParPage.keys()]
-    .filter(p => termes.every(t => trouvesParPage.get(p).some(m => correspondAuTerme(t, m))))
+    .filter(p => (tousLesTermes ? termes.every : termes.some)
+      .call(termes, t => trouvesParPage.get(p).some(m => correspondAuTerme(t, m))))
     .sort((a, b) => a - b)
 
   return pagesRetenues.map(p => {

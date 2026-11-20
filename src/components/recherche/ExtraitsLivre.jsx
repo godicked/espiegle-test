@@ -11,7 +11,9 @@ const TRANCHES_PAR_CARTE = 3
  * carte : seuls les fragments des tranches les plus pertinentes sont téléchargés.
  * Chaque passage ouvre la page correspondante du livre (#page-<index>).
  * onPages({ nb, exact }) : pages trouvées dans les tranches chargées ; exact si
- * toutes les tranches trouvées du livre (nbTranches) l'ont été.
+ * toutes les tranches trouvées du livre (nbTranches) l'ont été ; partiel si aucune
+ * page ne réunit tous les termes : on montre alors des pages qui en contiennent
+ * une partie, plutôt qu'une carte vide.
  */
 export default function ExtraitsLivre({ livreId, slug, requete, motsIndexes, nbTranches, onPages, max = 3 }) {
   const [extraits, setExtraits] = useState(null)
@@ -22,8 +24,10 @@ export default function ExtraitsLivre({ livreId, slug, requete, motsIndexes, nbT
     rechercher(requete, { filters: { livre: livreId } }, TRANCHES_PAR_CARTE)
       .then(({ donnees }) => {
         if (annule) return
-        const pages = donnees.flatMap(d => extraitsParPage(d, requete, motsIndexes))
-        onPages?.({ nb: pages.length, exact: donnees.length >= nbTranches })
+        let pages = donnees.flatMap(d => extraitsParPage(d, requete, motsIndexes))
+        const partiel = pages.length === 0
+        if (partiel) pages = donnees.flatMap(d => extraitsParPage(d, requete, motsIndexes, 32, false))
+        onPages?.({ nb: partiel ? 0 : pages.length, exact: donnees.length >= nbTranches, partiel })
         // Pages les plus riches en occurrences d'abord (tri stable : ordre de pertinence)
         setExtraits(pages.toSorted((a, b) => b.occurrences - a.occurrences).slice(0, max))
       })

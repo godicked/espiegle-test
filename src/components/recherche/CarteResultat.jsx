@@ -54,7 +54,7 @@ export default function CarteResultat({ livre, colonnesMeta, filtresActifs, requ
             <span className="chip chip--actif">
               <span className="material-icons" style={{ fontSize: '13px' }}>history_edu</span>
               {pages === null ? 'Trouvé dans la transcription'
-                : pages.nb === 0 ? (pages.exact ? 'Termes trouvés sur des pages voisines' : 'Trouvé dans la transcription')
+                : pages.nb === 0 ? 'Termes trouvés sur des pages différentes'
                 : `${pages.exact ? '' : 'Au moins '}${pages.nb} page${pages.nb > 1 ? 's' : ''} trouvée${pages.nb > 1 ? 's' : ''}`}
             </span>
           )}
